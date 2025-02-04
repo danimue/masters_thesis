@@ -144,15 +144,26 @@ def json_to_string(task: dict) -> str:
 
 
 def create_prompt(stringified_grid) -> str:
-    task_explanation = """The following is a task from the ARC dataset. In this dataset multiple example input and output grids are given.
-All transformations from input to output follow the same rule. There is also an example which has only an input. Please generate the corresponding output for that example. \n
+    task_explanation = """Here is are some examples of the transformation from `input` to `output`: \n
 """
 
-    task_instructions = """\n\nPlease return the missing output grid with the same formatting as the examples. Do not write code, do not explain your solution - just answer with the correct grid."""
+    # task_instructions = """\n\nPlease return the missing output grid with the same formatting as the examples. Do not write code, do not explain your solution - just answer with the correct grid."""
     
     task_examples = stringified_grid
+    
+    task_instructions = """You'll need to carefully reason in order to determine the transformation rule. Start your response by carefully reasoning in <reasoning></reasoning> tags. Then, implement the transformation in code.
+
+For your reasoning, please pay close attention to where the objects in the grid are in the input and where they are moved in the output example. You can consider a space with a 0 as an empty space, as 0 represents the color black.
+
+Once you have finished your first round of reasoning, please start a second round of reasoning in <reasoning></reasoning> tags. In this round, consider each row of the input and output array. According to your transformation logic, would they be the same? If not, what went wrong and how can it be fixed?
+If you made any mistakes, correct them. If you are unsure that you have found the correct transformation rule, you may start as many rounds of <reasoning></reasoning> as you deem necessary.
+
+After your reasoning is completed write code in triple backticks (```python and then ```). You should write a function called `transform` which takes a single argument, the input grid as `list[list[int]]`, and returns the transformed grid (also as `list[list[int]]`). You should make sure that you implement a version of the transformation which works in general (it shouldn't just work for the additional input).
+
+Don't write tests in your python code, just output the `transform` function (it will be tested later)."""
 
     return task_explanation + task_examples + task_instructions
+
 
 check_dataset()
 train, eval = load_files_from_json()
