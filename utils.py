@@ -173,7 +173,7 @@ def create_prompt(task_identifier: str) -> str:
     
     task_examples = stringified_grid
     
-    task_instructions = """You'll need to carefully reason in order to determine the transformation rule. Start your response by carefully reasoning in <reasoning></reasoning> tags. Then, implement the transformation in code.
+    task_instructions = """\n\nYou'll need to carefully reason in order to determine the transformation rule. Start your response by carefully reasoning in <reasoning></reasoning> tags. Then, implement the transformation in code.
 
 For your reasoning, please pay close attention to where the objects in the grid are in the input and where they are moved in the output example. You can consider a space with a 0 as an empty space, as 0 represents the color black.
 
