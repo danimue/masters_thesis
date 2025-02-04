@@ -4,6 +4,8 @@ import requests
 import zipfile
 import shutil
 
+from typing import Any, Dict
+
 def check_dataset():
     """
     Checks if ARC-AGI dataset exists and downloads it if not.
@@ -134,16 +136,36 @@ def json_to_string(task: dict) -> str:
         final_output += "]\n\n"
 
     # Test Case
+    # omit test case for now
     final_output += "Test\n["
     for row in test_task[0]["input"]:
         final_output += f"\n{str(row)}"
     final_output += "]"
 
-    print(final_output)
     return final_output
 
 
-def create_prompt(stringified_grid) -> str:
+def find_task(task_identifier: str, *dicts: Dict[str, Any]) -> Any:
+    """_summary_
+
+    Args:
+        task_identifier (str): _description_
+        dicts (Dict[str, Any]): _description_
+    Returns:
+        Any: _description_
+    """
+    for d in dicts:
+        if task_identifier in d:
+            return d[task_identifier]
+    return None
+
+
+def create_prompt(task_identifier: str) -> str:
+    
+    task = find_task(task_identifier, train, eval)
+    if task != None:
+        stringified_grid = json_to_string(task)
+    
     task_explanation = """Here is are some examples of the transformation from `input` to `output`: \n
 """
 
@@ -167,7 +189,5 @@ Don't write tests in your python code, just output the `transform` function (it 
 
 check_dataset()
 train, eval = load_files_from_json()
-task_str = json_to_string(train["0d3d703e"])
-print(create_prompt(task_str))
-
-
+prompt = create_prompt("0d3d703e")
+print(prompt)
