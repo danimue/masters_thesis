@@ -145,28 +145,31 @@ def json_to_string(task: dict) -> str:
     return final_output
 
 
-def find_task(task_identifier: str, *dicts: Dict[str, Any]) -> Any:
-    """_summary_
+# def find_task(task_identifier: str, *dicts: Dict[str, Any]) -> Any:
+#     """_summary_
 
-    Args:
-        task_identifier (str): _description_
-        dicts (Dict[str, Any]): _description_
-    Returns:
-        Any: _description_
-    """
+#     Args:
+#         task_identifier (str): _description_
+#         dicts (Dict[str, Any]): _description_
+#     Returns:
+#         Any: _description_
+#     """
+#     for d in dicts:
+#         if task_identifier in d:
+#             return d[task_identifier]
+#     return None
+
+
+def create_prompt(task_identifier: str, *dicts: Dict[str, Any]) -> str:
+    
     for d in dicts:
         if task_identifier in d:
-            return d[task_identifier]
-    return None
-
-
-def create_prompt(task_identifier: str) -> str:
+            task = d[task_identifier]
     
-    task = find_task(task_identifier, train, eval)
     if task != None:
         stringified_grid = json_to_string(task)
     
-    task_explanation = """Here is are some examples of the transformation from `input` to `output`: \n
+    task_explanation = """Here are are some examples of the transformation from `input` to `output`: \n
 """
 
     # task_instructions = """\n\nPlease return the missing output grid with the same formatting as the examples. Do not write code, do not explain your solution - just answer with the correct grid."""
