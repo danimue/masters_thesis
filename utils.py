@@ -137,10 +137,10 @@ def json_to_string(task: dict) -> str:
 
     # Test Case
     # omit test case for now
-    final_output += "Test\n["
-    for row in test_task[0]["input"]:
-        final_output += f"\n{str(row)}"
-    final_output += "]"
+    # final_output += "Test\n["
+    # for row in test_task[0]["input"]:
+    #     final_output += f"\n{str(row)}"
+    # final_output += "]"
 
     return final_output
 
@@ -185,9 +185,3 @@ After your reasoning is completed write code in triple backticks (```python and 
 Don't write tests in your python code, just output the `transform` function (it will be tested later)."""
 
     return task_explanation + task_examples + task_instructions
-
-
-check_dataset()
-train, eval = load_files_from_json()
-prompt = create_prompt("0d3d703e")
-print(prompt)
