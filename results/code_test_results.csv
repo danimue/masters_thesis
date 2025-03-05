@@ -1,0 +1,394 @@
+task,sample_num,extracted_code,average_percentage_correct,count_perfect_scores
+75b8110e,1,"def transform(input_grid):
+    # Flatten the input grid and filter out zeros
+    non_zero_elements = [element for row in input_grid for element in row if element != 0]
+
+    # Create a 4x4 output grid
+    output_grid = [[0] * 4 for _ in range(4)]
+
+    # Fill the output grid with the non-zero elements
+    index = 0
+    for i in range(4):
+        for j in range(4):
+            if index < len(non_zero_elements):
+                output_grid[i][j] = non_zero_elements[index]
+                index += 1
+
+    return output_grid",0.274,0
+75b8110e,2,"def transform(input_grid):
+    # Initialize the output grid with zeros
+    output_grid = [[0, 0, 0, 0] for _ in range(4)]
+
+    # Iterate over the input grid and extract the first four elements from each row
+    for i in range(4):
+        for j in range(4):
+            output_grid[i][j] = input_grid[i][j]
+
+    return output_grid",0.186,0
+75b8110e,3,"def transform(input_grid):
+    output_grid = []
+    for i in range(0, 8, 2):
+        row = []
+        for j in range(0, 8, 2):
+            block = [
+                input_grid[i][j], input_grid[i][j+1],
+                input_grid[i+1][j], input_grid[i+1][j+1]
+            ]
+            color_counts = {}
+            for color in block:
+                if color != 0:
+                    if color in color_counts:
+                        color_counts[color] += 1
+                    else:
+                        color_counts[color] = 1
+            if color_counts:
+                majority_color = min(color_counts, key=color_counts.get)
+            else:
+                majority_color = 0
+            row.append(majority_color)
+        output_grid.append(row)
+    return output_grid",0.21200000000000002,0
+75b8110e,4,"def transform(input_grid):
+    # Identify unique colors in the input grid
+    unique_colors = set()
+    for row in input_grid:
+        for color in row:
+            if color != 0:
+                unique_colors.add(color)
+
+    # Create a dictionary to store the positions of each color
+    color_positions = {color: [] for color in unique_colors}
+    for i, row in enumerate(input_grid):
+        for j, color in enumerate(row):
+            if color != 0:
+                color_positions[color].append((i, j))
+
+    # Determine the size of the output grid
+    output_size = len(unique_colors)
+
+    # Create the output grid
+    output_grid = [[0] * output_size for _ in range(output_size)]
+
+    # Fill the output grid with the colors
+    for color, positions in color_positions.items():
+        for (i, j) in positions:
+            output_grid[i % output_size][j % output_size] = color
+
+    return output_grid",0.762,0
+75b8110e,5,,0.0,0
+75b8110e,6,"def transform(input_grid):
+    def find_largest_block(grid):
+        max_block = []
+        max_size = 0
+        for i in range(len(grid)):
+            for j in range(len(grid[0])):
+                if grid[i][j] != 0:
+                    block = []
+                    stack = [(i, j)]
+                    while stack:
+                        x, y = stack.pop()
+                        if 0 <= x < len(grid) and 0 <= y < len(grid[0]) and grid[x][y] != 0:
+                            block.append(grid[x][y])
+                            grid[x][y] = 0
+                            stack.append((x + 1, y))
+                            stack.append((x - 1, y))
+                            stack.append((x, y + 1))
+                            stack.append((x, y - 1))
+                    if len(block) > max_size:
+                        max_block = block
+                        max_size = len(block)
+        return max_block
+
+    output_grid = [[0] * 4 for _ in range(4)]
+    index = 0
+    for i in range(4):
+        for j in range(4):
+            if index < len(input_grid):
+                block = find_largest_block(input_grid)
+                if block:
+                    output_grid[i][j] = block[0]
+                    input_grid = [row[:] for row in input_grid]
+                    input_grid[block[0] // 8][block[0] % 8] = 0
+                    index += 1
+    return output_grid",0.122,0
+75b8110e,7,,0.0,0
+75b8110e,8,"def transform(input_grid):
+    # Define the output grid size
+    output_size = 4
+
+    # Initialize the output grid with zeros
+    output_grid = [[0] * output_size for _ in range(output_size)]
+
+    # Define the mapping from input to output positions
+    mapping = [
+        (0, 0), (0, 1), (0, 2), (0, 3),
+        (1, 0), (1, 1), (1, 2), (1, 3),
+        (2, 0), (2, 1), (2, 2), (2, 3),
+        (3, 0), (3, 1), (3, 2), (3, 3)
+    ]
+
+    # Populate the output grid based on the mapping
+    for i in range(output_size):
+        for j in range(output_size):
+            input_row = i * 2
+            input_col = j * 2
+            output_grid[i][j] = input_grid[input_row][input_col]
+
+    return output_grid",0.098,0
+75b8110e,9,,0.0,0
+75b8110e,10,"def transform(input_grid):
+    # Find the size of the output grid
+    unique_elements = set()
+    for row in input_grid:
+        for elem in row:
+            if elem != 0:
+                unique_elements.add(elem)
+    output_size = len(unique_elements)
+
+    # Create the output grid with the same size as the input grid
+    output_grid = [[0] * output_size for _ in range(output_size)]
+
+    # Fill the output grid with the non-zero elements from the input grid
+    for i in range(len(input_grid)):
+        for j in range(len(input_grid[i])):
+            if input_grid[i][j] != 0:
+                output_grid[i % output_size][j % output_size] = input_grid[i][j]
+
+    return output_grid",0.0,0
+3618c87e,1,"def transform(grid):
+    # Get the dimensions of the grid
+    rows = len(grid)
+    cols = len(grid[0])
+
+    # Create a copy of the grid to store the transformed grid
+    transformed_grid = [row[:] for row in grid]
+
+    # Iterate over the grid to find '1's and '5's
+    for i in range(rows):
+        for j in range(cols):
+            if grid[i][j] == 1:
+                # Move '1' to the row directly above the bottom row if there is a '5' in the row directly below it
+                if i < rows - 1 and grid[i + 1][j] == 5:
+                    transformed_grid[i + 1][j] = 1
+                    transformed_grid[i][j] = 0
+            elif grid[i][j] == 5:
+                # Move '5's in the bottom row to the left and right to fill in the spaces left by the '1's
+                if i == rows - 1:
+                    if j > 0 and grid[i][j - 1] == 0:
+                        transformed_grid[i][j - 1] = 5
+                        transformed_grid[i][j] = 0
+                    if j < cols - 1 and grid[i][j + 1] == 0:
+                        transformed_grid[i][j + 1] = 5
+                        transformed_grid[i][j] = 0
+
+    return transformed_grid",0.8666666666666667,0
+3618c87e,2,"def transform(grid):
+    rows = len(grid)
+    cols = len(grid[0])
+
+    # Create a new grid with the same dimensions
+    new_grid = [[0] * cols for _ in range(rows)]
+
+    # Iterate over the grid and apply the transformation rule
+    for i in range(rows):
+        for j in range(cols):
+            if grid[i][j] == 1:
+                # Move '1' to the bottom row
+                new_grid[rows - 1][j] = 1
+            elif grid[i][j] == 5:
+                # Move '5' to the rightmost column
+                new_grid[i][cols - 1] = 5
+            else:
+                # Copy the element to the new grid
+                new_grid[i][j] = grid[i][j]
+
+    return new_grid",0.8266666666666667,0
+3618c87e,3,"def transform(grid):
+    def move_elements(row):
+        ones = [i for i, x in enumerate(row) if x == 1]
+        fives = [i for i, x in enumerate(row) if x == 5]
+
+        for i in ones:
+            row[i] = 0
+        for i in fives:
+            row[i] = 0
+
+        for i in ones:
+            if i + 1 < len(row) and row[i + 1] == 0:
+                row[i + 1] = 1
+            else:
+                row[i] = 1
+
+        for i in fives:
+            if i - 1 >= 0 and row[i - 1] == 0:
+                row[i - 1] = 5
+            else:
+                row[i] = 5
+
+        return row
+
+    return [move_elements(row) for row in grid]",0.7333333333333334,0
+3618c87e,4,"def transform(grid):
+    rows, cols = len(grid), len(grid[0])
+    new_grid = [[0] * cols for _ in range(rows)]
+
+    for r in range(rows):
+        for c in range(cols):
+            if grid[r][c] != 0:
+                new_r = (r + 1) % rows
+                new_c = 0
+                while new_grid[new_r][new_c] != 0:
+                    new_c += 1
+                new_grid[new_r][new_c] = grid[r][c]
+
+    return new_grid",0.5333333333333333,0
+3618c87e,5,"def transform(grid):
+    rows = len(grid)
+    cols = len(grid[0])
+
+    # Create a copy of the grid to store the transformed grid
+    transformed_grid = [row[:] for row in grid]
+
+    # Iterate over each row in the grid
+    for i in range(rows - 1):
+        # Find the positions of '1's and '5's in the current row
+        ones_positions = [j for j in range(cols) if grid[i][j] == 1]
+        fives_positions = [j for j in range(cols) if grid[i][j] == 5]
+
+        # Move '1's to the rightmost position in the row below
+        for pos in ones_positions:
+            transformed_grid[i + 1][cols - 1] = 1
+
+        # Move '5's to the leftmost position in the row below
+        for pos in fives_positions:
+            transformed_grid[i + 1][0] = 5
+
+    return transformed_grid",0.7066666666666667,0
+3618c87e,6,"def transform(grid):
+    transformed_grid = []
+    for row in grid:
+        non_zero_elements = [x for x in row if x != 0]
+        zero_elements = [0] * (len(row) - len(non_zero_elements))
+        transformed_row = zero_elements + non_zero_elements
+        transformed_grid.append(transformed_row)
+    return transformed_grid",0.7866666666666667,0
+3618c87e,7,"def transform(grid):
+    n = len(grid)
+    m = len(grid[0])
+
+    # Create a copy of the grid to store the transformed grid
+    transformed_grid = [row[:] for row in grid]
+
+    # Find the positions of '1's and '5's in the grid
+    ones_positions = []
+    fives_positions = []
+
+    for i in range(n):
+        for j in range(m):
+            if grid[i][j] == 1:
+                ones_positions.append((i, j))
+            elif grid[i][j] == 5:
+                fives_positions.append((i, j))
+
+    # Move the '1's to the row directly above the bottom row
+    for pos in ones_positions:
+        i, j = pos
+        if i < n - 1:
+            transformed_grid[n-2][j] = 1
+            transformed_grid[i][j] = 0
+
+    # Move the '5's in the bottom row to the left and right of the '1's
+    for pos in fives_positions:
+        i, j = pos
+        if i == n - 1:
+            if j > 0 and transformed_grid[i][j-1] == 1:
+                transformed_grid[i][j-1] = 5
+            if j < m - 1 and transformed_grid[i][j+1] == 1:
+                transformed_grid[i][j+1] = 5
+
+    return transformed_grid",0.7600000000000001,0
+3618c87e,8,"def transform(grid):
+    rows = len(grid)
+    cols = len(grid[0])
+
+    # Create a new grid to store the transformed values
+    transformed_grid = [[0] * cols for _ in range(rows)]
+
+    for i in range(rows):
+        for j in range(cols):
+            if grid[i][j] == 1:
+                # Move '1' to the right by 1 column
+                if j + 1 < cols:
+                    transformed_grid[i][j + 1] = 1
+            elif grid[i][j] == 5:
+                # Move '5' to the left by 1 column
+                if j - 1 >= 0:
+                    transformed_grid[i][j - 1] = 5
+            else:
+                # Copy the value if it's not '1' or '5'
+                transformed_grid[i][j] = grid[i][j]
+
+    return transformed_grid",0.8266666666666667,0
+3618c87e,9,"def transform(grid):
+    # Find the positions of '1's and '5's in the grid
+    ones = []
+    fives = []
+
+    for i in range(len(grid)):
+        for j in range(len(grid[i])):
+            if grid[i][j] == 1:
+                ones.append((i, j))
+            elif grid[i][j] == 5:
+                fives.append((i, j))
+
+    # Create a new grid with the same dimensions as the input grid
+    new_grid = [[0 for _ in range(len(grid[0]))] for _ in range(len(grid))]
+
+    # Move the '1's and '5's to the last row
+    for i, (r, c) in enumerate(ones):
+        new_grid[-1][i] = 1
+
+    for i, (r, c) in enumerate(fives):
+        new_grid[-1][i] = 5
+
+    # Move the '5's in the last row to the left and right of the '1's
+    for i in range(len(new_grid[-1])):
+        if new_grid[-1][i] == 1:
+            if i > 0:
+                new_grid[-1][i-1] = 5
+            if i < len(new_grid[-1]) - 1:
+                new_grid[-1][i+1] = 5
+
+    # Copy the remaining '0's from the input grid to the new grid
+    for i in range(len(grid)):
+        for j in range(len(grid[i])):
+            if grid[i][j] == 0:
+                new_grid[i][j] = 0
+
+    return new_grid",0.0,0
+3618c87e,10,"def transform(grid):
+    rows = len(grid)
+    cols = len(grid[0])
+    new_grid = [[0] * cols for _ in range(rows)]
+
+    for r in range(rows):
+        for c in range(cols):
+            if grid[r][c] == 1:
+                if r == rows - 1:
+                    new_grid[r][c] = 1
+                    if c > 0:
+                        new_grid[r][c - 1] = 5
+                    if c < cols - 1:
+                        new_grid[r][c + 1] = 5
+                else:
+                    new_grid[r + 1][c] = 1
+            elif grid[r][c] == 5:
+                if r == rows - 1:
+                    new_grid[r][c] = 5
+                else:
+                    if c == cols - 1:
+                        new_grid[r + 1][c] = 5
+                    else:
+                        new_grid[r + 1][c + 1] = 5
+
+    return new_grid",0.8133333333333335,0
