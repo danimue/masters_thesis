@@ -1,0 +1,23 @@
+{
+    "templates": {
+      "template_x": {
+        "llm_models": ["gpt-3.5-turbo"],
+        "prompt_template": "Answer this question with template X: {question}",
+        "num_repeats": 2,
+        "temperature": 0.5
+      },
+      "template_y": {
+        "llm_models": ["llama2"],
+        "prompt_template": "Answer this question with template Y: {question}",
+        "num_repeats": 3,
+        "temperature": 0.8
+      },
+      "template_z": {
+        "llm_models": ["gpt-4"],
+        "prompt_template": "Answer this question with template Z: {question}",
+        "num_repeats": 1,
+        "temperature": 0.2
+      }
+    },
+    "default_template": "template_x"
+  }
