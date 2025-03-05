@@ -7,7 +7,16 @@ from typing import Optional, List, Dict, Union
 
 from mistralai import Mistral
 
-load_dotenv()  # Load variables from .env file
+
+
+def initialize_client(which: str = "mistral"):
+    load_dotenv()  # Load variables from .env file
+    
+    if which == 'mistral':
+        api_key = os.environ["MISTRAL_API_KEY"]
+        client = Mistral(api_key=api_key)
+    
+    return client
 
 #api_key = os.environ.get("OPENROUTER_API_KEY")
 #api_key_together = os.environ.get("TOGETHER_API_KEY")
@@ -19,7 +28,7 @@ load_dotenv()  # Load variables from .env file
 #     raise ValueError("TOGETHER_API_KEY environment variable not set.")
 
 # mistral
-api_key = os.environ["MISTRAL_API_KEY"]
+
 # model = "mistral-small-latest"
 
 
@@ -27,9 +36,9 @@ api_key = os.environ["MISTRAL_API_KEY"]
 # codestral
 #api_key = os.environ["CODESTRAL_API_KEY"]
 #model = "codestral-latest"
-model = "mistral-small-latest"
+# model = "mistral-small-latest"
 
-client = Mistral(api_key=api_key)
+# client = Mistral(api_key=api_key)
 
 # openrouter
 # client = OpenAI(
@@ -62,6 +71,7 @@ def generate_llm_response(
     system_prompt: str,
     #model: str = "qwen/qwen2.5-vl-72b-instruct:free",
     #model: str = "meta-llama/Llama-Vision-Free",
+    client=None,
     model = "mistral-small-latest",
     base64_image: Optional[str] = None,
     extra_body: Optional[Dict] = None,

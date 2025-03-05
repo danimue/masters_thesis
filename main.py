@@ -1,5 +1,5 @@
 from utils import check_dataset, load_files_from_json, find_task, create_prompt, json_to_string, json_to_ascii
-from llm_utils import generate_llm_response
+from llm_utils import generate_llm_response, initialize_client
 from eval import extract_solution, evaluate_solution, fix_output_string, extract_code, execute_transform_function
 
 import time
@@ -15,6 +15,8 @@ def main() -> None:
     train, eval = load_files_from_json()
     
     test_set1 = dict(list(train.items())[0:10])
+    
+    client = initialize_client('mistral')
     
     # for task_index, (task_name, task_content) in enumerate(test_set1.items()):
         
@@ -133,7 +135,7 @@ def main() -> None:
         system_prompt = "You are a very smart puzzle solver."
         
         print("Asking llm for answer!")
-        response = generate_llm_response(user_prompt, system_prompt, num_samples=1, temperature=0.0)
+        response = generate_llm_response(user_prompt, system_prompt, client=client, num_samples=1, temperature=0.0)
         
         print(response)
         
