@@ -135,8 +135,11 @@ def json_to_string(task: dict, include_test: bool = False) -> str:
     # Test Example
     if include_test:
         final_output += "Test\n["
-        for row in test_task[0]["input"]:
-            final_output += f"\n{str(row)}"
+        for index, row in enumerate(test_task[0]["input"]):
+            if index == len(test_task[0]["input"])-1:
+                final_output += f"\n{str(row),}"
+            else:
+                final_output += f"\n{str(row)}"
         final_output += "]"
 
     return final_output
@@ -206,6 +209,25 @@ def find_task(task_identifier: str, *dicts: dict[str, Any]) -> dict[str, Any] | 
         if task_identifier in d:
             return d[task_identifier]
     return None
+
+
+def generate_coding_prompt(task: dict[str, Any]) -> str:
+    
+    task_explanation = """Here are are some examples of the transformation from `input` to `output`: \n"""
+    task_examples = json_to_string(task, include_test=False)
+    task_instructions = """\n\nYou will need to carefully reason in order to determine the transformation rule. Put your reasoning in <reasoning></reasoning> tags. You break down complex problems into smaller parts and reason through them step by step, using sub-conclusions before coming to an overall conclusion. Large leaps in reasoning are not necessary. Take as long as you deem necessary.
+
+- Determine the input and output grid sizes.
+- Focus on what stays permanent and changes between input and output.
+- Deduce a transformation rule and confirm that it works on the examples given.
+
+If you find that you made a mistake in your previous reasoning, correct it. Make sure your reasoning does not only work on one but at least multiple of the given examples.
+
+Once you are certain you found a valid transformation rule, implement it in python code. Put your code in triple backticks (```python and then ```). Write one function named 'transform_grid()' which takes a single argument, the input grid as `list[list[int]]`, and returns the transformed grid (also as `list[list[int]]`). You do not need to document code. You also do not need to test your code - it will be tested later."""
+
+    user_prompt = task_explanation + task_examples + task_instructions
+    
+    return user_prompt
 
 
 def create_prompt(task: dict[str, Any], prompt_type: str = 'simple', reason: bool = True) -> str | None:

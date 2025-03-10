@@ -35,10 +35,16 @@ def extract_solution(input_string: str) -> list[list[int]] | None:
             # Try parsing json, if no json is found, we have a problem
             return matches[-1].strip()
 
-        # Worst case: no answer found at all :(
+        # Last resort:
         else:
-            print("Warning: Solution pattern not found in LLM response.")
-            return None
+            match = re.search(r"Answer:\s*(\[[\s\S]*\])", input_string)      
+            if match:
+                return match.group(1).strip()
+            
+            else:
+                # Worst case: no answer found at all :(
+                print("Warning: Solution pattern not found in LLM response.")
+                return None
 
 def fix_output_string(input_string: str) -> Optional[list[list[int]]]:
     if input_string is None:
@@ -78,7 +84,7 @@ class TimeoutException(Exception):
 def timeout_handler(signum, frame):
     raise TimeoutException("Execution timed out")
 
-def execute_transform_function(code_string, test_input, timeout=10):
+def execute_transform_function(code_string, test_input, timeout=5):
     """Executes the 'transform' function from a code string.
 
     Args:
@@ -99,13 +105,13 @@ def execute_transform_function(code_string, test_input, timeout=10):
     try:
         exec(code_string, globals(), local_namespace)  # Use globals for numpy if needed
 
-        if 'transform' in local_namespace and callable(local_namespace['transform']):
-            transform_func = local_namespace['transform']
+        if 'transform_grid' in local_namespace and callable(local_namespace['transform_grid']):
+            transform_func = local_namespace['transform_grid']
             output = transform_func(test_input)  # Call the function with the input
             signal.alarm(0)  # Disable the alarm
             return output
         else:
-            print("Error: 'transform' function not defined or not callable.")
+            print("Error: 'transform_grid' function not defined or not callable.")
             return None
     
     except TimeoutException:
@@ -119,6 +125,7 @@ def execute_transform_function(code_string, test_input, timeout=10):
     finally:
         signal.alarm(0)  # Ensure timeout is disabled after execution
 
+
 def evaluate_solution(attempt_array: np.ndarray, solution_array: np.ndarray) -> dict:
 
     results = dict(
@@ -128,7 +135,7 @@ def evaluate_solution(attempt_array: np.ndarray, solution_array: np.ndarray) -> 
     )
     
     # Check if answer was extracted at all
-    results['answer_extracted'] = (attempt_array is not None)
+    results['answer_extracted'] = attempt_array is not None
 
     # Check for correct grid size
     if attempt_array is not None:
