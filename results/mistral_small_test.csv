@@ -1,0 +1,21 @@
+task,llm_full_answer,llm_extracted_answer,answer_extracted,correct_grid_size,percentage_correct
+75b8110e,"Answer: 
+[
+[5, 5, 4, 5],
+[5, 5, 9, 5],
+[5, 0, 9, 6],
+[5, 6, 0, 6]]","[[5 5 4 5]
+ [5 5 9 5]
+ [5 0 9 6]
+ [5 6 0 6]]",True,True,0.31
+3618c87e,"Answer: 
+[
+[0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0],
+[0, 0, 5, 0, 0],
+[5, 1, 5, 5, 1]]","[[0 0 0 0 0]
+ [0 0 0 0 0]
+ [0 0 0 0 0]
+ [0 0 5 0 0]
+ [5 1 5 5 1]]",True,True,0.88
