@@ -46,17 +46,27 @@ def extract_solution(input_string: str) -> list[list[int]] | None:
                 print("Warning: Solution pattern not found in LLM response.")
                 return None
 
-def fix_output_string(input_string: str) -> Optional[list[list[int]]]:
+def convert_output_to_array(input_string: str) -> np.ndarray | None:
     if input_string is None:
         return None
-    
     else:    
         str_removed_characters = re.sub(r'[a-zA-Z]', '', input_string)
         result = str_removed_characters.strip()
         try:
-            return json.loads(result)
+            extracted_json = json.loads(result)
+            grid_as_numpy_array = np.array(extracted_json)
+            return grid_as_numpy_array
         except json.JSONDecodeError:
-            return None
+            # Often this happens because the LLM does not wrap the lists into square brackets properly
+            # Therefore, attempt extracting numpy array with added brackets
+            try:
+                grid_with_outer_brackets = '[' + result + ']'     # but outer brackets around extracted data
+                list_of_lists = eval(grid_with_outer_brackets)    # convert to list of lists
+                grid_as_numpy_array = np.array(list_of_lists)
+                return grid_as_numpy_array
+            except:
+                print("Could not successfully convert extracted answer to numpy array.")
+                return None
 
 
 def extract_code(input_string: str) -> str:
