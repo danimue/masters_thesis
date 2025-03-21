@@ -417,7 +417,7 @@ Answer: ``` <your answer as a list of list of integers> ```"""
 
     messages = [
         {"role": "system", "content": system_prompt},
-        {"role": "user", "content": [{"type": "text", "text": user_prompt}]}
+        {"role": "user", "content": user_prompt}
     ]
 
     return messages
