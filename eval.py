@@ -3,6 +3,7 @@ import json
 import numpy as np
 
 import signal
+import importlib
 
 from typing import Any, Optional
 
@@ -106,7 +107,16 @@ def execute_transform_function(code_string, test_input, timeout=5):
         or the function is not found.
     """
 
-    local_namespace = {}  # Crucial for safety!
+    local_namespace = {}
+    
+    def dynamic_import(module_name):
+        try:
+            return importlib.import_module(module_name)
+        except ImportError:
+            print(f"Warning: Module '{module_name}' could not be imported.")
+            return None #Or raise error, depending on your needs.
+        
+    local_namespace['__import__'] = dynamic_import
     
     # Set up signal handler for timeout - this is to prevent code that runs too long or gets into an infinite loop
     signal.signal(signal.SIGALRM, timeout_handler)

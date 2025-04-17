@@ -1,14 +1,24 @@
-from utils import check_dataset, load_files_from_json, find_task, create_basic_prompt, generate_coding_prompt, generate_prompt_with_image, generate_code_fixing_prompt
+from utils import *
+from prompt_generators import create_basic_prompt, generate_coding_prompt, generate_prompt_with_image, generate_code_fixing_prompt, create_reasoning_model_prompt
 from llm_utils import generate_llm_response, initialize_client
-from eval import extract_solution, evaluate_solution, fix_output_string, extract_code, execute_transform_function
+from eval import extract_solution, evaluate_solution, convert_output_to_array, extract_code, execute_transform_function
+
+import os
 
 import ast
 import time
 import json
+import asyncio
 
 import numpy as np
 import pandas as pd
 
+
+#######################################
+#       Please dont run this
+#       at the moment! Might 
+#       overwrite important stuff.
+######################################
 def main() -> None:
         
     check_dataset()
@@ -27,15 +37,27 @@ def main() -> None:
         #'model': 'meta-llama/Llama-Vision-Free',
         #'model': 'pixtral-large-latest',
         #'model': 'qwen/qwen2.5-vl-72b-instruct:free',
-        'model': 'google/gemma-3-27b-it:free',
+        #'model': 'google/gemma-3-27b-it:free',
         #'model': 'codestral-latest',
+        # 'model': 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',
+        #'model': 'deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free',
+        #'model': 'qwen/qwq-32b:free',
+        #'model': 'qwen2.5-14b-instruct',
+        #'model': 'qwen2.5-32b-instruct',
+        #'model': 'qwen2.5-72b-instruct',
+        #'model': 'deepseek/deepseek-r1-distill-llama-70b:free',
+        #'model': 'mistral-small-latest',
+        'model': 'qwq-32b',
         'solution_type': 'simple',
         'temperatures': [0.1, 0.3, 0.5, 0.7, 0.9],
-        'samples_per_step': 10,
+        'samples_per_step': 20,
         'code_correction_steps': 4
     }
     
-    client = initialize_client('openrouter')
+    client = initialize_client('alibaba')
+    
+    #client = initialize_client('dashscope')
+    #client = initialize_client('openrouter')
     print("Client initialized!")
     
     
@@ -166,13 +188,9 @@ def main() -> None:
 
     ###################################
     ##   Visual Reasoning
-    ###################################
-    # Initializing client:
-    # client = initialize_client('openrouter')
-    # print("Client initialized!")
-    
-    # # Create smaller dataset for testing purposes
-    # test_set = dict(list(train.items())[202:])
+    ###################################    
+    # Create smaller dataset for testing purposes
+    # test_set = dict(list(train.items())[65:])
     
     # results = []
 
@@ -190,9 +208,7 @@ def main() -> None:
     #     extracted_answer = None     # Initialize to None before the try block
     #     try:
     #         extracted_answer_temp = extract_solution(response)            
-    #         extracted_answer_temp = fix_output_string(extracted_answer_temp)
-    #         if extracted_answer_temp is not None:
-    #             extracted_answer = np.array(extracted_answer_temp)
+    #         extracted_answer = convert_output_to_array(extracted_answer_temp)
     #     except ValueError as e:
     #         print(f"Error converting extracted solution to NumPy array: {e}")
     #         extracted_answer = None
@@ -208,27 +224,38 @@ def main() -> None:
     #             'llm_full_answer': response,
     #             'llm_extracted_answer': extracted_answer
     #         })
-        
     #     row.update(result)
     #     results.append(row)
         
     #     print("Waiting for one second...")
-    #     time.sleep(1.5)
-        
-    #     if (task_index + 1) % 10 == 0:
-    #         df = pd.DataFrame(results)
-    #         df.to_csv("results/qwen-72b-vl_visual_reasoning_p2.csv.csv", index=False)
-    #         print(f"Data saved to CSV after {task_index + 1} iterations.")
+    #     time.sleep(2)
+
+    #     df = pd.DataFrame(results)
+    #     df.to_csv("results/vl_models/mistral-small_visual-reasoning_p3.csv", index=False)
+    #     print(f"Data saved to CSV after {task_index + 1} iterations.")
     
     # # save at the very end
     # df = pd.DataFrame(results)
-    # df.to_csv("results/qwen-72b-vl_visual_reasoning_p2.csv", index=False)
+    # df.to_csv("results/vl_models/mistral-small_visual-reasoning_p3.csv", index=False)
     # print("Data saved to CSV at the end of the loop.")
     
 
     ###################################
     ##   Use this for program synthesis
     ###################################
+    
+    ####
+    # only the tasks that qwen-qwq could not solve!
+    # qwen = pd.read_csv("results/qwen-qwq-32b_reasoning-updated.csv")
+    # qwen_solved = set(qwen.query("percentage_correct == 1")['task'].to_list())
+
+    # test_set = {
+    #   key: value
+    #   for key, value in train.items()
+    #   if key not in qwen_solved
+    # }
+    
+    # print(len(test_set))
     
     # additional_infos = []
     # code_results = []
@@ -238,14 +265,12 @@ def main() -> None:
             
     #     print(f"Processing task {task_name} using program synthesis.")
         
-    #     user_prompt = generate_coding_prompt(task_content)
-    #     system_prompt = """You are a very talented python programmer. You will be given multiple paired example input and outputs. The outputs were produced by applying a transformation rule to the inputs. Your task is to determine the transformation rule and implement it in code. The inputs and outputs are each 'grids'. A grid is a rectangular matrix of integers between 0 and 9 (inclusive). The integer values represent colors. 
-    #     The transformation rule that you have to deduce might have multiple components and can be fairly complex. In your reasoning you will break down complex problems into smaller parts and reason through them step by step, arriving at sub-conclusions before stating your overall conclusion. This will avoid large leaps in reasoning. You reason in detail and for as long as is necessary to fully determine the transformation rule."""
         
-    #     messages = [
-    #         {"role": "system", "content": system_prompt},
-    #         {"role": "user", "content": [{"type": "text", "text": user_prompt}]}
-    #     ]
+        
+    #     # prompt = generate_coding_prompt(task_content)
+    #     # messages = [prompt.copy() for _ in range(config['samples_per_step'])]
+        
+    #     messages = generate_coding_prompt(task_content)
         
     #     print("Generating code...")
     #     responses_list = []
@@ -319,18 +344,19 @@ def main() -> None:
     #             'extracted_code': generated_code,
     #             'generated_grids': generated_output_grids,
     #             'average_percentage_correct': average_percentage_correct,
-    #             'count_perfect_scores': count_perfect_scores
+    #             'count_perfect_scores': count_perfect_scores,
+    #             'generation_step': 0
     #         })
             
     #         code_results.append(row)
         
     #     # Save results after every loop in case something breaks    
     #     df = pd.DataFrame(code_results)
-    #     df.to_csv("results/program_synthesis/codestral_code_p4.csv", index=False)
+    #     df.to_csv("results/program_synthesis/qwen-32b_code_p1.csv", index=False)
         
     #     df2 = pd.DataFrame(additional_infos,
     #                        columns=['task_name', 'processing_time', 'samples_drawn', 'input_tokens', 'output_tokens', 'temperature'])
-    #     df2.to_csv("results/program_synthesis/codestral_code_info_p4.csv", index=False)
+    #     df2.to_csv("results/program_synthesis/qwen-32b_code_info_p1.csv", index=False)
         
     #     # Take a tiny break in order to not exceed token limits
     #     # Might not really be necessary as prompts take a long time to process anyways    
@@ -339,31 +365,31 @@ def main() -> None:
     #######################################
     #   Used this for oneshot simple prompt
     #######################################
-    test_set = dict(list(train.items())[:200])
+    test_set = dict(list(train.items())[:1])
     
     results = []
     
     for i, (task_name, task_content) in enumerate(test_set.items()):
     
         print(f"Processing task {task_name}")
+        print(f"#{i +1} out of {len(test_set)}")
         
-        messages = create_basic_prompt(task=task_content, allow_reasoning=False)
+        #messages = create_reasoning_model_prompt(task=task_content)
+        messages = create_reasoning_model_prompt(task=task_content)
         
         print("Asking llm for answer!")
         response = generate_llm_response(messages=messages, 
                                          client=client,
                                          model=config['model'],
                                          num_samples=1,
-                                         temperature=0.0)
+                                         temperature=0.6)
         
         print("Evaluating answer")
         
         extracted_answer = None     # Initialize to None before the try block
         try:
             extracted_answer_temp = extract_solution(response)            
-            extracted_answer_temp = fix_output_string(extracted_answer_temp)
-            if extracted_answer_temp is not None:
-                extracted_answer = np.array(extracted_answer_temp)
+            extracted_answer = convert_output_to_array(extracted_answer_temp)
         except ValueError as e:
             print(f"Error converting extracted solution to NumPy array: {e}")
             extracted_answer = None
@@ -384,17 +410,19 @@ def main() -> None:
         results.append(row)
         
         print("Waiting for one second...")
-        time.sleep(5)
+        time.sleep(3)
         
-        if (i + 1) % 10 == 0:
-            df = pd.DataFrame(results)
-            df.to_csv("results/gemma3_visual_baseline_p1.csv", index=False)
-            print(f"Data saved to CSV after {i + 1} iterations.")
-    
-    #llama-11b-vl_noreason  
+        
+        df = pd.DataFrame(results)
+        df.to_csv("dont_run!", index=False)
+        print(f"Data saved to CSV after {i + 1} iterations.")
+     
     df = pd.DataFrame(results)
-    df.to_csv("results/gemma3_baseline_p1.csv", index=False)
+    df.to_csv("dont_run!", index=False)
     print("Data saved to CSV at the end of the loop.")
 
 if __name__ == "__main__":
+    start_time = time.time()
     main()
+    end_time = time.time()
+    print(f"Final processing time for all tasks: {end_time - start_time}")
